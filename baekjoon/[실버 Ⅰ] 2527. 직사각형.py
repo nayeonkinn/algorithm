@@ -1,5 +1,5 @@
-import sys
-sys.stdin = open("input.txt", "r")
+# import sys
+# sys.stdin = open("input.txt", "r")
 
 for i in range(4) :
     a, b, c, d, e, f, g, h = list(map(int, input().split()))

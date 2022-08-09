@@ -1,5 +1,5 @@
-import sys
-sys.stdin = open("input.txt", "r")
+# import sys
+# sys.stdin = open("input.txt", "r")
 
 N, K = list(map(int, input().split()))
 ondo = [num for num in list(map(int, input().split()))]

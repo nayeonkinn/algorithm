@@ -1,5 +1,5 @@
-import sys
-sys.stdin = open('input.txt', 'r')
+# import sys
+# sys.stdin = open('input.txt', 'r')
 
 def countBingo(bingo) :
     cnt = 0

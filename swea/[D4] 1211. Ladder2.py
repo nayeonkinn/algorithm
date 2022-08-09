@@ -1,5 +1,5 @@
-import sys
-sys.stdin = open("input.txt", "r")
+# import sys
+# sys.stdin = open("input.txt", "r")
 
 for t in range(1, 11):
     input()

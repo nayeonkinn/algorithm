@@ -1,5 +1,5 @@
 import sys
-sys.stdin = open('input/1216.txt')
+sys.stdin = open('input/1216-1.txt')
 
 def palindrome(words):
     words2 = [''.join([words[j][i] for j in range(100)]) for i in range(100)]

@@ -27,11 +27,11 @@ while True:
 
     if cheese:
         time += 1
-        cheese_cnt = len(cheese)
+        cnt = len(cheese)
         q = cheese[:]
         cheese = []
     else:
         break
 
 print(time)
-print(cheese_cnt)
+print(cnt)

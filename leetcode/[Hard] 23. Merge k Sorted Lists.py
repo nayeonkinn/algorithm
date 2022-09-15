@@ -11,11 +11,11 @@ class Solution:
         heap = []
         for i in range(len(lists)):
             while lists[i]:
-                heappush(heap, (lists[i].val, i))
+                heappush(heap, lists[i].val)
                 lists[i] = lists[i].next
     
         head = merged = ListNode()
         while heap:
-            merged.next = ListNode(heappop(heap)[0])
+            merged.next = ListNode(heappop(heap))
             merged = merged.next
         return head.next

@@ -38,7 +38,6 @@ def bfs(x, y, info, total):
     if not move:
         answer = max(total, answer)
 
-
 info = [[0] * 4 for _ in range(4)]
 for i in range(4):
     temp = list(map(int, input().split()))

@@ -1,32 +1,47 @@
 import sys
 sys.stdin = open('input/1799.txt')
 
-def is_promising(candidate, bishop):
-    i, j = candidate
-    for bi, bj in bishop:
-        if abs(i - bi) == abs(j - bj):
-            return False
-    return True
 
-def backtracking(idx, bishop, type):
-    global answer
-    if idx == len(candidates) - 1:
-        if type:
-            odd = max(len(bishop), odd)
-        else:
-            even = max(len(bishop), even)
+def is_promising(x, y, type):
+    if not (0 <= x < n and 0 <= y < n):
+        return True
+    if bishop[x][y]:
+        return False
+
+    if type == 0:
+        return is_promising(x - 1, y - 1, 1) and is_promising(x - 1, y + 1, 2)
+    elif type == 1:
+        return is_promising(x - 1, y - 1, 1)
+    elif type == 2:
+        return is_promising(x - 1, y + 1, 2)
+
+
+def backtracking(idx, cnt, type):
+    if idx == len(candidate[type]):
+        answer[type] = max(cnt, answer[type])
         return
 
-    for i in range(idx + 1, len(candidates)):
-        if is_promising(candidates[i], bishop):
-            backtracking(i, bishop + [candidates[i]], type)
-        else:
-            backtracking(i, bishop, type)
+    i, j = candidate[type][idx]
+    if is_promising(i, j, 0):
+        bishop[i][j] = True
+        backtracking(idx + 1, cnt + 1, type)
+        bishop[i][j] = False
+    backtracking(idx + 1, cnt, type)
+
 
 n = int(input())
 chess = [list(map(int, input().split())) for _ in range(n)]
-candidates = [(i, j) for i in range(n) for j in range(n) if chess[i][j]]
-even, odd = 0, 0
-backtracking(0, [], 0)
-backtracking(0, [], 1)
-print(even + odd)
+odd, even = [], []
+for i in range(n):
+    for j in range(n):
+        if chess[i][j]:
+            if (i + j) % 2:
+                odd.append((i, j))
+            else:
+                even.append((i, j))
+
+candidate, answer = [odd, even], [0, 0]
+bishop = [[False] * n for _ in range(n)]
+backtracking(0, 0, 0)
+backtracking(0, 0, 1)
+print(sum(answer))

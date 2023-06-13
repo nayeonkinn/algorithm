@@ -1,5 +1,5 @@
 import sys
-sys.stdin = open('input/15649-2.txt')
+sys.stdin = open('input/15649-1.txt')
 
 
 def combination(numbers, visited, now):
@@ -15,6 +15,5 @@ def combination(numbers, visited, now):
 
 
 n, m = map(int, input().split())
-arr = [i + 1 for i in range(n)]
 visited = [False] * n
 combination([], visited, 0)

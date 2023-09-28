@@ -9,152 +9,135 @@ def is_turret_one():
     cnt = 0
     for i in range(n):
         for j in range(m):
-            if arr[i][j] > 0:
+            if board[i][j] > 0:
                 cnt += 1
             if cnt > 1:
                 return False
     return True
 
 
-def find_attacker(turn):
-    candidate = []
+def find_attack(t):
+    attack = None
     minimum = 5000
+
     for i in range(n):
         for j in range(m):
-            if arr[i][j] <= 0:
+            if board[i][j] <= 0:
                 continue
-            elif arr[i][j] < minimum:
-                minimum = arr[i][j]
-                candidate = [(i, j)]
-            elif arr[i][j] == minimum:
-                candidate.append((i, j))
+            
+            if board[i][j] < minimum:
+                minimum = board[i][j]
+                attack = (i, j)
+            elif board[i][j] == minimum:
+                if history[attack[0]][attack[1]] < history[i][j]:
+                    attack = (i, j)
+                elif history[attack[0]][attack[1]] == history[i][j]:
+                    if attack[0] + attack[1] < i + j:
+                        attack = (i, j)
+                    elif attack[0] + attack[1] == i + j:
+                        if attack[1] < j:
+                            attack = (i, j)
 
-    if len(candidate) > 1:
-        t = turn - 1
-        while t >= 0:
-            if set(history[t]) & set(candidate):
-                candidate = [*set(history[t]) & set(candidate)]
-                break
-            t -= 1
+    history[attack[0]][attack[1]] = t
 
-    if len(candidate) > 1:
-        candidate = [(i, j) for i, j in candidate if i + j == sum(max(candidate, key = lambda x: x[0] + x[1]))]
-
-    if len(candidate) > 1:
-        candidate = [max(candidate, key = lambda x: x[1])]
-
-    for t in range(turn):
-        if candidate[0] in history[t]:
-            history[t].remove(candidate[0])
-            break
-    history[turn] = [candidate[0]]
-
-    return candidate[0]
+    return attack
 
 
-def find_target(turn, attacker):
-    candidate = []
+def find_target(attack):
+    target = None
     maximum = 0
+
     for i in range(n):
         for j in range(m):
-            if arr[i][j] <= 0:
+            if board[i][j] <= 0:
                 continue
-            elif arr[i] == attacker[0] and arr[j] == attacker[1]:
+            elif board[i] == attack[0] and board[j] == attack[1]:
                 continue
-            elif arr[i][j] > maximum:
-                maximum = arr[i][j]
-                candidate = [(i, j)]
-            elif arr[i][j] == maximum:
-                candidate.append((i, j))
+            
+            if board[i][j] > maximum:
+                maximum = board[i][j]
+                target = (i, j)
+            elif board[i][j] == maximum:
+                if history[target[0]][target[1]] > history[i][j]:
+                    target = (i, j)
+                elif history[target[0]][target[1]] == history[i][j]:
+                    if target[0] + target[1] > i + j:
+                        target = (i, j)
+                    elif target[0] + target[1] == i + j:
+                        if target[1] > j:
+                            target = (i, j)
 
-    if len(candidate) > 1:
-        t = 0
-        while t < turn:
-            if set(history[t]) & set(candidate):
-                candidate = [*set(history[t]) & set(candidate)]
-                break
-            t += 1
-
-    if len(candidate) > 1:
-        candidate = [(i, j) for i, j in candidate if i + j == sum(min(candidate, key = lambda x: x[0] + x[1]))]
-
-    if len(candidate) > 1:
-        candidate = [min(candidate, key = lambda x: x[1])]
-    
-    return candidate[0]
+    return target
 
 
-def rasor(attacker, target):
-    queue = deque([[*attacker, []]])
+def attack_and_repair(attack, target, related):
+    power = board[attack[0]][attack[1]]
+
+    for i in range(n):
+        for j in range(m):
+            if board[i][j] <= 0 or (i, j) == attack:
+                continue
+
+            if (i, j) == target:
+                board[i][j] -= power
+            elif (i, j) in related:
+                board[i][j] -= power // 2
+            else:
+                board[i][j] += 1
+
+
+def laser(attack, target):
+    queue = deque([[*attack, []]])
     visited = [[False] * m for _ in range(n)]
-    # print(queue)
-    flag = False
+    success = False
 
     while queue:
         i, j, route = queue.popleft()
         if (i, j) == target:
-            flag = True
+            success = True
             break
         
         for di, dj in delta_4:
             ni, nj = (di + i) % n, (dj + j) % m
-            if arr[ni][nj] > 0 and not visited[ni][nj]:
+            if board[ni][nj] > 0 and not visited[ni][nj]:
                 queue.append([ni, nj, route + [(ni, nj)]])
                 visited[ni][nj] = True
     
-    if not flag:
+    if not success:
         return False
     
-    for i in range(n):
-        for j in range(m):
-            if (i, j) in route:
-                attack = arr[attacker[0]][attacker[1]]
-                if (i, j) == target:
-                    arr[i][j] -= attack
-                else:
-                    arr[i][j] -= attack // 2
-            elif arr[i][j] <= 0 or (i, j) == attacker:
-                pass
-            else:
-                arr[i][j] += 1
-    
+    attack_and_repair(attack, target, route)
+
     return True
 
 
-def shell(attacker, target):
-    attack = arr[attacker[0]][attacker[1]]
-    route = [(target[0], target[1])]
+def shell(attack, target):
+    related = [(target[0], target[1])]
     
     for di, dj in delta_8:
         ni, nj = (di + target[0]) % n, (dj + target[1]) % m
-        if arr[ni][nj] > 0 and (ni, nj) != (attacker[0], attacker[1]):
-            route.append((ni, nj))
-            arr[ni][nj] -= attack // 2
+        if board[ni][nj] > 0 and (ni, nj) != (attack[0], attack[1]):
+            related.append((ni, nj))
     
-    arr[target[0]][target[1]] -= attack
-
-    for i in range(n):
-        for j in range(m):
-            if (i, j) not in route and arr[i][j] > 0 and (i, j) != attacker:
-                arr[i][j] += 1
+    attack_and_repair(attack, target, related)
 
 
 n, m, k = map(int, input().split())
-arr = [list(map(int, input().split())) for _ in range(n)]
-history = {0: [(i, j) for i in range(n) for j in range(m)]}
+board = [list(map(int, input().split())) for _ in range(n)]
+history = [[0] * m for _ in range(n)]
 delta_4 = ((0, 1), (1, 0), (0, -1), (-1, 0))
 delta_8 = ((0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1))
 
-for turn in range(1, k + 1):
+for t in range(1, k + 1):
     if is_turret_one():
         break
 
-    attacker = find_attacker(turn)
-    target = find_target(turn, attacker)
+    attack = find_attack(t)
+    target = find_target(attack)
     
-    arr[attacker[0]][attacker[1]] += n + m
+    board[attack[0]][attack[1]] += n + m
 
-    if not rasor(attacker, target):
-        shell(attacker, target)
+    if not laser(attack, target):
+        shell(attack, target)
 
-print(max(*sum(arr, [])))
+print(max(*sum(board, [])))

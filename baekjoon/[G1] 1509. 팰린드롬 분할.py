@@ -29,6 +29,13 @@ def minimum():
             if pd[j + 1][i]:  # j+1 ~ i 문자열이 팰린드롬이라면
                 dp[i] = min(dp[i], dp[j] + 1)  # i까지의 최소 팰린드롬 개수는 j까지의 최소 팰린드롬 개수 + 1
 
+    # for i in range(1, t):  # 이런 로직도 가능
+    #     for j in range(i + 1, t):
+    #         if pd[i][j]:
+    #             dp[j] = min(dp[j], dp[i - 1] + 1)
+    #         else:
+    #             dp[j] = min(dp[j], dp[j - 1] + 1)
+
 palindrome()
 minimum()
 

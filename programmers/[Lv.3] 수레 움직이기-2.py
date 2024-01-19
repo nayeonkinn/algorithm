@@ -52,8 +52,6 @@ def dfs(maze, red_now, blue_now, cnt):
 def solution(maze):
     global answer, red_end, blue_end, red_visited, blue_visited
 
-    answer = 1e9
-
     for i in range(len(maze)):
         for j in range(len(maze[0])):
             if maze[i][j] == 1:

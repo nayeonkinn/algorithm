@@ -2,7 +2,6 @@ import sys
 from bisect import bisect_left
 
 sys.stdin = open('input/12015.txt')  # 4
-input = sys.stdin.readline
 
 n = int(input())
 arr = list(map(int, input().split()))
